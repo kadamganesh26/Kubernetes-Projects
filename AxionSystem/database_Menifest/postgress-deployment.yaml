@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: postgres
+
+  template:
+    metadata:
+      labels:
+        app: postgres
+
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17.10
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "axion_user"
+
+            - name: POSTGRES_PASSWORD
+              value: "Hin12#$%"
+
+            - name: POSTGRES_DB
+              value: "axiondb"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+
+  ports:
+    - port: 5432
+      targetPort: 5432
