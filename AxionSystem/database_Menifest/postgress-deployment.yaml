@@ -28,6 +28,9 @@ spec:
 
             - name: POSTGRES_DB
               value: "axiondb"
+            
+            - name: PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION
+              value: "False"
 
 ---
 
