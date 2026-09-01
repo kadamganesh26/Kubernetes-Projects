@@ -19,9 +19,9 @@
 crash.log
 crash.*.log
 
-# Variable files containing secrets
-*.tfvars
-*.tfvars.json
+# # Variable files containing secrets
+# *.tfvars
+# *.tfvars.json
 
 # Keep example variable files
 !*.tfvars.example
