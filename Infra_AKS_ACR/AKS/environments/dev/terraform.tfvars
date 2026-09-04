@@ -8,7 +8,7 @@ infra_config = {
 
     "rg-micro-prod" = {
 
-      location = "East US"
+      location = "australiasoutheast"
 
       tags = {
         Environment = "Dev"
@@ -68,7 +68,7 @@ infra_config = {
 
         node_count = 2
 
-        vm_size = "Standard_B2s"
+        vm_size = "standard_b2ls_v2"
 
         type = "VirtualMachineScaleSets"
 
