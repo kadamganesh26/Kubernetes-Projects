@@ -15,14 +15,14 @@ import { SystemSettings } from './components/pages/SystemSettings';
 import { DashboardView } from './components/pages/DashboardView';
 import { NotFound } from './components/pages/NotFound';
 
-const API_BASE = 'https://api.axionsystems.de';
+const API_BASE = 'http://telemetry:9000/';
 
 function App() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('axion_auth') === 'true';
   });
-  
+
   const [refreshInterval, setRefreshInterval] = useState<number | null>(5000);
 
   const [summary, setSummary] = useState({ onlineAssets: 0, lastUpdateRaw: '' });
@@ -86,7 +86,7 @@ function App() {
         fetch(`${API_BASE}/devices/top-anomalous`),
         fetch(`${API_BASE}/dashboard/regions`)
       ]);
-      
+
       const [sumData, devData, thruData, anomData, regData] = await Promise.all([
         sumRes.json(),
         devRes.json(),
@@ -158,61 +158,61 @@ function App() {
             {/* Abstract Data Rings */}
             <div className="fixed top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] border border-theme-base/10 rounded-full animate-[spin_120s_linear_infinite] pointer-events-none z-0 opacity-40"></div>
             <div className="fixed top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border-2 border-dashed border-theme-base/10 rounded-full animate-[spin_90s_linear_infinite_reverse] pointer-events-none z-0 opacity-40"></div>
-            
+
             {/* Subtle Dot Grid Background */}
             <div className="fixed inset-0 opacity-[0.03] z-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at center, white 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
             <div className="z-10 flex w-full relative">
               <Sidebar />
-              
+
               <div className="flex-1 lg:ml-64 ml-16 min-w-0 flex flex-col h-screen overflow-hidden">
                 <TopBar onlineAssets={summary.onlineAssets} lastUpdate={formatAppDate(summary.lastUpdateRaw, timezone)} onLogout={handleLogout} />
-                
+
                 <Routes>
                   <Route path="/" element={<Navigate to="/fleet" replace />} />
-                  
+
                   <Route path="/fleet" element={
                     <FleetSummary regionSummary={regionSummary} />
                   } />
-                  
+
                   <Route path="/device/:region/:deviceId" element={
-                    <DashboardView 
-                      devices={devices} 
-                      throughput={throughput} 
-                      isLoggedIn={isLoggedIn} 
-                      refreshInterval={refreshInterval} 
-                      timezone={timezone} 
+                    <DashboardView
+                      devices={devices}
+                      throughput={throughput}
+                      isLoggedIn={isLoggedIn}
+                      refreshInterval={refreshInterval}
+                      timezone={timezone}
                     />
                   } />
-                  
+
                   <Route path="/device/:region" element={
-                    <DashboardView 
-                      devices={devices} 
-                      throughput={throughput} 
-                      isLoggedIn={isLoggedIn} 
-                      refreshInterval={refreshInterval} 
-                      timezone={timezone} 
+                    <DashboardView
+                      devices={devices}
+                      throughput={throughput}
+                      isLoggedIn={isLoggedIn}
+                      refreshInterval={refreshInterval}
+                      timezone={timezone}
                     />
                   } />
-                  
+
                   <Route path="/device" element={
-                    <DashboardView 
-                      devices={devices} 
-                      throughput={throughput} 
-                      isLoggedIn={isLoggedIn} 
-                      refreshInterval={refreshInterval} 
-                      timezone={timezone} 
+                    <DashboardView
+                      devices={devices}
+                      throughput={throughput}
+                      isLoggedIn={isLoggedIn}
+                      refreshInterval={refreshInterval}
+                      timezone={timezone}
                     />
                   } />
-                  
+
                   <Route path="/hierarchy" element={<AssetHierarchy devices={devices} />} />
                   <Route path="/topology" element={<SystemTopology devices={devices} />} />
                   <Route path="/alarms" element={<AlarmsEvents devices={topAnomalous} timezone={timezone} />} />
                   <Route path="/correlation" element={<HistoricalTrends devices={devices} />} />
-                  
+
                   <Route path="/settings" element={
-                    <SystemSettings 
-                      refreshInterval={refreshInterval} 
+                    <SystemSettings
+                      refreshInterval={refreshInterval}
                       onRefreshIntervalChange={setRefreshInterval}
                       theme={theme}
                       onThemeChange={setTheme}

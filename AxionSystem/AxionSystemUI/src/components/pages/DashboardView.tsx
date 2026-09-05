@@ -7,7 +7,7 @@ import { Throughput } from '../Throughput';
 import { DigitalTwin } from '../DigitalTwin';
 import { ThermalCamera } from '../ThermalCamera';
 
-const API_BASE = 'https://api.axionsystems.de';
+const API_BASE = 'http://telemetry:9000/';
 
 interface DashboardViewProps {
   devices: any[];
@@ -50,7 +50,7 @@ export function DashboardView({ devices, throughput, isLoggedIn, refreshInterval
     // Ensure default parameters are always present in the URL for sharing
     const currentHours = searchParams.get('hours');
     const currentMetric = searchParams.get('metric');
-    
+
     if (!currentHours || !currentMetric) {
       const newParams = new URLSearchParams(searchParams);
       if (!currentHours) newParams.set('hours', initialTimeRange.toString());
@@ -98,7 +98,7 @@ export function DashboardView({ devices, throughput, isLoggedIn, refreshInterval
           return;
         }
       }
-      
+
       if (region) {
         const regionDevice = devices.find((d: any) => d.refinery_region === region);
         if (regionDevice) {
@@ -129,15 +129,15 @@ export function DashboardView({ devices, throughput, isLoggedIn, refreshInterval
       <div className="max-w-[1600px] mx-auto bg-[#09090b] pt-6">
         <div className="grid grid-cols-1 xl:grid-cols-[300px_1fr] gap-4">
           <div className="flex flex-col gap-4 h-full">
-            <AssetList 
-              devices={devices} 
+            <AssetList
+              devices={devices}
               selectedDeviceId={deviceId}
               onSelectDevice={handleSelectDevice}
             />
           </div>
           <div id="main-dashboard-content" className="flex flex-col gap-4 bg-[#09090b] rounded-md p-1">
             <KPIStrip device={latestData} />
-            
+
             {/* Top Row: Digital Twin and Thermal CCTV */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               <div className="h-[400px] flex flex-col relative rounded-md overflow-hidden bg-black border border-[#262626]">
@@ -151,10 +151,10 @@ export function DashboardView({ devices, throughput, isLoggedIn, refreshInterval
             {/* Bottom Row: Live Trend and Throughput */}
             <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-4">
               <div className="h-[400px] flex flex-col">
-                <LiveTrend 
-                  data={trendData} 
-                  timeRange={timeRange} 
-                  onTimeRangeChange={handleTimeRangeChange} 
+                <LiveTrend
+                  data={trendData}
+                  timeRange={timeRange}
+                  onTimeRangeChange={handleTimeRangeChange}
                   metric={metric}
                   onMetricChange={handleMetricChange}
                   timezone={timezone}

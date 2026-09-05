@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: simulator-service-pod
-          image: acrmicrodev567.azurecr.io/simulator:v1
+          image: acrmicrodev2606.azurecr.io/simulator:v1
           ports:
             - containerPort: 8000
 

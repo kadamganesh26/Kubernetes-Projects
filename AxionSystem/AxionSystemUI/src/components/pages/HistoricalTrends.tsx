@@ -4,7 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useSearchParams } from 'react-router-dom';
 import { ShareLinkButton } from '../ShareLinkButton';
 
-const API_BASE = 'https://api.axionsystems.de';
+const API_BASE = 'http://telemetry:9000/';
 
 // A set of distinct colors for the correlation lines
 const COLORS = [
@@ -63,8 +63,8 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
   };
 
   const filteredDevices = useMemo(() => {
-    return devices.filter(d => 
-      d.device_id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    return devices.filter(d =>
+      d.device_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.device_type.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [devices, searchTerm]);
@@ -88,11 +88,11 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
 
       setLoading(true);
       try {
-        const promises = selectedDeviceIds.map(id => 
+        const promises = selectedDeviceIds.map(id =>
           fetch(`${API_BASE}/devices/${id}/trends?hours=${timeRange}`).then(res => res.json())
         );
         const results = await Promise.all(promises);
-        
+
         // Merge data for recharts
         const deviceDataMap: Record<string, any[]> = {};
         selectedDeviceIds.forEach((id, index) => {
@@ -100,7 +100,7 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
         });
 
         const timeMap = new Map<number, any>();
-        
+
         for (const [deviceId, data] of Object.entries(deviceDataMap)) {
           if (!data || !Array.isArray(data)) continue;
           data.forEach(point => {
@@ -108,17 +108,17 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
             const date = new Date(point.timestamp.endsWith('Z') ? point.timestamp : point.timestamp + 'Z');
             date.setSeconds(0, 0); // Round to minute
             const timeKey = date.getTime();
-            
+
             if (!timeMap.has(timeKey)) {
-              timeMap.set(timeKey, { 
-                timeKey, 
-                time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+              timeMap.set(timeKey, {
+                timeKey,
+                time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
               });
             }
             timeMap.get(timeKey)![deviceId] = point[metric];
           });
         }
-        
+
         const mergedData = Array.from(timeMap.values()).sort((a, b) => a.timeKey - b.timeKey);
         setChartData(mergedData);
       } catch (err) {
@@ -140,7 +140,7 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
           <h2 className="text-2xl font-bold text-white tracking-tight">Correlation Engine</h2>
           <p className="text-sm text-slate-400">Select multiple devices to overlay and correlate their telemetry data.</p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <ShareLinkButton />
           <div className="flex bg-[#0a0a0a] rounded-md border border-[#404040] p-1">
@@ -148,9 +148,8 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
               <button
                 key={m}
                 onClick={() => setMetric(m as any)}
-                className={`px-4 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-all ${
-                  metric === m ? 'bg-theme-deep text-white shadow-sm border border-theme-base/50' : 'text-slate-400 hover:text-slate-200'
-                }`}
+                className={`px-4 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-all ${metric === m ? 'bg-theme-deep text-white shadow-sm border border-theme-base/50' : 'text-slate-400 hover:text-slate-200'
+                  }`}
               >
                 {m}
               </button>
@@ -162,9 +161,8 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
               <button
                 key={h}
                 onClick={() => setTimeRange(h)}
-                className={`px-4 py-1.5 rounded text-xs font-bold transition-all ${
-                  timeRange === h ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
-                }`}
+                className={`px-4 py-1.5 rounded text-xs font-bold transition-all ${timeRange === h ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                  }`}
               >
                 {h}H
               </button>
@@ -179,9 +177,9 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
           <div className="p-4 border-b border-[#404040] bg-[#0a0a0a]">
             <div className="relative">
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
-              <input 
-                type="text" 
-                placeholder="Search devices..." 
+              <input
+                type="text"
+                placeholder="Search devices..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-slate-900/50 border border-slate-700/50 rounded pl-9 pr-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-theme-base/50 focus:ring-1 focus:ring-theme-base/50 transition-all"
@@ -194,26 +192,25 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
               )}
             </div>
           </div>
-          
+
           <div className="flex-1 p-2 overflow-y-auto custom-scrollbar space-y-1">
             {filteredDevices.map(device => {
               const isSelected = selectedDeviceIds.includes(device.device_id);
               const colorIndex = selectedDeviceIds.indexOf(device.device_id);
               const color = colorIndex >= 0 ? COLORS[colorIndex % COLORS.length] : 'transparent';
-              
+
               return (
                 <button
                   key={device.device_id}
                   onClick={() => toggleDevice(device.device_id)}
-                  className={`w-full flex items-center gap-3 p-2.5 rounded text-left transition-all border ${
-                    isSelected 
-                      ? 'bg-slate-800/80 border-slate-600 shadow-sm' 
+                  className={`w-full flex items-center gap-3 p-2.5 rounded text-left transition-all border ${isSelected
+                      ? 'bg-slate-800/80 border-slate-600 shadow-sm'
                       : 'hover:bg-[#262626] border-transparent text-slate-400'
-                  }`}
+                    }`}
                 >
-                  <div 
+                  <div
                     className={`w-3.5 h-3.5 rounded-sm shrink-0 border flex items-center justify-center transition-colors`}
-                    style={{ 
+                    style={{
                       backgroundColor: isSelected ? color : 'transparent',
                       borderColor: isSelected ? color : '#52525b'
                     }}
@@ -251,47 +248,47 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
                   Fetching High-Res Trends...
                 </div>
               )}
-              
+
               <h3 className="text-lg font-bold text-white mb-6 uppercase tracking-widest pl-2">
                 {metric} Overlay Analysis
               </h3>
-              
+
               <div className="flex-1 w-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 30 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
-                    <XAxis 
-                      dataKey="time" 
-                      stroke="#52525b" 
+                    <XAxis
+                      dataKey="time"
+                      stroke="#52525b"
                       tick={{ fill: '#71717a', fontSize: 11 }}
                       tickMargin={15}
                       minTickGap={30}
                     />
-                    <YAxis 
-                      stroke="#52525b" 
+                    <YAxis
+                      stroke="#52525b"
                       tick={{ fill: '#71717a', fontSize: 11 }}
                       tickFormatter={(val) => `${val}${yAxisLabel}`}
                       width={60}
                       domain={['auto', 'auto']}
                     />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ backgroundColor: '#09090b', borderColor: '#262626', color: '#fff', borderRadius: '6px', fontSize: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
                       itemStyle={{ fontWeight: 'bold' }}
                       labelStyle={{ color: '#a1a1aa', marginBottom: '8px', borderBottom: '1px solid #262626', paddingBottom: '4px' }}
                     />
-                    <Legend 
+                    <Legend
                       verticalAlign="top"
                       align="right"
                       wrapperStyle={{ paddingBottom: '20px', fontSize: '12px' }}
                       iconType="circle"
                     />
-                    
+
                     {selectedDeviceIds.map((id, index) => (
-                      <Line 
+                      <Line
                         key={id}
-                        type="monotone" 
-                        dataKey={id} 
-                        stroke={COLORS[index % COLORS.length]} 
+                        type="monotone"
+                        dataKey={id}
+                        stroke={COLORS[index % COLORS.length]}
                         strokeWidth={2}
                         dot={false}
                         activeDot={{ r: 6, strokeWidth: 0 }}
