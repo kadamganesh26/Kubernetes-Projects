@@ -27,4 +27,11 @@ spec:
             - name: PGADMIN_DEFAULT_PASSWORD
               value: "Admin@12345"
 
-
+          # resources:
+          #   limits
+          #     cpu: "100m"
+          #     memory: "256Mi"
+          #   requests:
+          #   limits:
+          #     cpu: "500m"
+          #     memory: "512Mi"

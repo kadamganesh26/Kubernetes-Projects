@@ -1,0 +1,85 @@
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+
+pool:
+  name: Default
+  demands:
+    - Agent.Name -equals Axion-Agent-Pool-freeSub
+
+stages:
+
+# =====================================================
+# STAGE 1 - CODE CHECKOUT
+# =====================================================
+- stage: CodeCheckOut
+  displayName: Code checkout from repo
+  jobs:
+    - job: checkout
+      steps:
+        - checkout: self
+          displayName: Checkout Axion Infrastructure Code
+
+        - task: AzureCLI@3
+          displayName: Azure Login
+          inputs:
+            connectionType: 'azureRM'
+            azureSubscription: 'Axion-Azure-Service-Connection'
+            scriptType: 'ps'
+            scriptLocation: 'scriptPath'
+            scriptPath: '$(Build.SourcesDirectory)\scripts\azure-login.ps1'
+
+        - task: TerraformTask@5
+          displayName: Terraform Init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/AKS/environments/dev'
+            commandOptions: '-reconfigure'
+            backendServiceArm: 'Axion-Azure-Service-Connection'
+            backendAzureRmStorageAccountName: 'rk28092026'
+            backendAzureRmContainerName: 'dev'
+            backendAzureRmKey: 'dev.tfstate'
+
+# =====================================================
+# STAGE 2 - TERRAFORM DESTROY
+# =====================================================
+- stage: TerraformDestroy
+  displayName: Terraform_Destroy
+  dependsOn: CodeCheckOut
+
+  jobs:
+    - job: Terraform
+      displayName: Terraform_Destroy
+
+      steps:
+        - checkout: self
+          displayName: Checkout Code
+
+        - task: TerraformInstaller@1
+          displayName: Terraform Install
+          inputs:
+            terraformVersion: 'latest'
+
+        - task: TerraformTask@5
+          displayName: Terraform Init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/AKS/environments/dev'
+            commandOptions: '-reconfigure'
+            backendServiceArm: 'Axion-Azure-Service-Connection'
+            backendAzureRmStorageAccountName: 'rk28092026'
+            backendAzureRmContainerName: 'dev'
+            backendAzureRmKey: 'dev.tfstate'
+
+        - task: TerraformTask@5
+          displayName: Terraform Destroy
+          inputs:
+            provider: 'azurerm'
+            command: 'destroy'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/AKS/environments/dev'
+            commandOptions: '-auto-approve'
+            environmentServiceNameAzureRM: 'Axion-Azure-Service-Connection'

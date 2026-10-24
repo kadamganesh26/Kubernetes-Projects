@@ -19,6 +19,6 @@ spec:
     spec:
       containers:
         - name: ingestion-service-pod
-          image: acrmicrodev2606.azurecr.io/injection:v1
+          image: acrmicrodev2210.azurecr.io/axion-ingestion:v1
           ports:
             - containerPort: 8000

@@ -1,0 +1,123 @@
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+
+pool:
+  name: Default
+  demands:
+    - Agent.Name -equals Axion-Agent-Pool-freeSub
+
+stages:
+
+# =====================================================
+# STAGE 1 - CODE CHECKOUT
+# =====================================================
+- stage: CodeCheckOut
+  displayName: Code checkout from repo
+  jobs:
+    - job: checkout
+      steps:
+        - checkout: self
+          displayName: Checkout Axion Infrastructure Code
+
+
+# =====================================================
+# STAGE 2 - TERRAFORM PLAN
+# =====================================================
+- stage: TerraformPlan
+  displayName: Terraform_Plan
+  dependsOn: CodeCheckOut
+
+  jobs:
+    - job: Terraform
+      displayName: Terraform_Plan
+
+      steps:
+        - checkout: self
+          displayName: Checkout Code
+
+        - task: TerraformInstaller@1
+          displayName: Terraform Install
+          inputs:
+            terraformVersion: 'latest'
+
+        - task: AzureCLI@3
+          displayName: Azure Login
+          inputs:
+            connectionType: 'azureRM'
+            azureSubscription: 'Axion-Azure-Service-Connection'
+            scriptType: 'ps'
+            scriptLocation: 'scriptPath'
+            scriptPath: '$(Build.SourcesDirectory)\scripts\azure-login.ps1'
+
+        - task: TerraformTask@5
+          displayName: Terraform Init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/AKS/environments/dev'
+            commandOptions: '-reconfigure'
+            backendServiceArm: 'Axion-Azure-Service-Connection'
+            backendAzureRmStorageAccountName: 'rk28092026'
+            backendAzureRmContainerName: 'dev'
+            backendAzureRmKey: 'dev.tfstate'
+
+        - task: TerraformTask@5
+          displayName: Terraform Validate
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/AKS/environments/dev'
+
+        - task: TerraformTask@5
+          displayName: Terraform Plan
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/AKS/environments/dev'
+            environmentServiceNameAzureRM: 'Axion-Azure-Service-Connection'
+
+
+# =====================================================
+# STAGE 3 - TERRAFORM APPLY
+# =====================================================
+- stage: TerraformApply
+  displayName: Terraform_Apply
+  dependsOn: TerraformPlan
+
+  jobs:
+    - job: Terraform
+      displayName: Terraform_Apply
+
+      steps:
+        - checkout: self
+          displayName: Checkout Code
+
+        - task: TerraformInstaller@1
+          displayName: Terraform Install
+          inputs:
+            terraformVersion: 'latest'
+
+        - task: TerraformTask@5
+          displayName: Terraform Init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/AKS/environments/dev'
+            commandOptions: '-reconfigure'
+            backendServiceArm: 'Axion-Azure-Service-Connection'
+            backendAzureRmStorageAccountName: 'rk28092026'
+            backendAzureRmContainerName: 'dev'
+            backendAzureRmKey: 'dev.tfstate'
+
+        - task: TerraformTask@5
+          displayName: Terraform Apply
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/AKS/environments/dev'
+            commandOptions: '-auto-approve'
+            environmentServiceNameAzureRM: 'Axion-Azure-Service-Connection'
+

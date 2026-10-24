@@ -4,7 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useSearchParams } from 'react-router-dom';
 import { ShareLinkButton } from '../ShareLinkButton';
 
-const API_BASE = 'http://telemetry:9000/';
+const API_BASE = 'http://20.211.206.32';
 
 // A set of distinct colors for the correlation lines
 const COLORS = [
@@ -204,8 +204,8 @@ export function HistoricalTrends({ devices = [] }: HistoricalTrendsProps) {
                   key={device.device_id}
                   onClick={() => toggleDevice(device.device_id)}
                   className={`w-full flex items-center gap-3 p-2.5 rounded text-left transition-all border ${isSelected
-                      ? 'bg-slate-800/80 border-slate-600 shadow-sm'
-                      : 'hover:bg-[#262626] border-transparent text-slate-400'
+                    ? 'bg-slate-800/80 border-slate-600 shadow-sm'
+                    : 'hover:bg-[#262626] border-transparent text-slate-400'
                     }`}
                 >
                   <div

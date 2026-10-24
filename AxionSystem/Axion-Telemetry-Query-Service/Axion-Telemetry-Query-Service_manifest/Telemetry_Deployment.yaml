@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: telemetry
-          image: acrmicrodev2606.azurecr.io/telemetry:v1
+          image: acrmicrodev2210.azurecr.io/telemetry-query-service:latest
           ports:
             - containerPort: 8000
